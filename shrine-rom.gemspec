@@ -15,9 +15,4 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency "shrine", "~> 2.9"
   gem.add_dependency "rom", "3.3.3"
-
-  gem.add_development_dependency "rake"
-  gem.add_development_dependency "minitest"
-  gem.add_development_dependency "rom-sql", '1.3.5'
-  gem.add_development_dependency "sqlite3"
 end
