@@ -28,8 +28,8 @@ class Shrine
         attr_reader :column_serializer
 
         # Allows overriding the default column serializer.
-        def initialize(column_serializer: shrine_class.opts[:column][:serializer], **options)
-          super(**options)
+        def initialize(record, name, column_serializer: shrine_class.opts[:column][:serializer], **options)
+          super(record, name, **options)
           @column_serializer = column_serializer
         end
 
@@ -40,6 +40,10 @@ class Shrine
         #     attacher.file #=> #<Shrine::UploadedFile>
         def load_column(data)
           load_data(deserialize_column(data))
+        end
+
+        def load_data(data)
+          @file = data && uploaded_file(data)
         end
 
         # Returns attacher data as a serialized string (JSON by default).

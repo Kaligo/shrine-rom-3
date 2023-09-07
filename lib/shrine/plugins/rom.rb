@@ -23,8 +23,8 @@ class Shrine
       module AttacherMethods
         attr_reader :repository
 
-        def initialize(repository: nil, **options)
-          super(**options)
+        def initialize(record, name, repository: nil, **options)
+          super(record, name, **options)
           @repository = repository
         end
 

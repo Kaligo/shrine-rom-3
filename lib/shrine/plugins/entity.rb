@@ -53,22 +53,22 @@ class Shrine
 
           # Returns an attacher instance.
           define_method :"#{name}_attacher" do |**options|
-            attachment.send(:attacher, self, **options)
+            attachment.send(:attacher, self, name, **options)
           end
         end
 
         # Returns the class attacher instance with loaded entity. It's not
         # memoized because the entity object could be frozen.
-        def attacher(record, **options)
-          attacher = class_attacher(**options)
+        def attacher(record, name, **options)
+          attacher = class_attacher(record, name, **options)
           attacher.load_entity(record, @name)
           attacher
         end
 
         # Creates an instance of the corresponding attacher class with set
         # name.
-        def class_attacher(**options)
-          attacher = shrine_class::Attacher.new(**@options, **options)
+        def class_attacher(record, name, **options)
+          attacher = shrine_class::Attacher.new(record, name, **options)
           attacher.instance_variable_set(:@name, @name)
           attacher
         end
@@ -148,7 +148,7 @@ class Shrine
 
         # Reads value from the entity attribute.
         def read_attribute
-          record.public_send(attribute)
+          record.respond_to?(attribute) ? record.public_send(attribute) : nil
         end
       end
     end
