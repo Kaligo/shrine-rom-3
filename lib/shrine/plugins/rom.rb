@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'shrine'
+require 'rom'
+
 class Shrine
   module Plugins
     module Rom
