@@ -1,22 +1,55 @@
-module DatabaseHelper
-  MAPPING = {
-    'postgres' => 'POSTGRES_URL',
-    'mysql' => 'MYSQL_URL',
-    'sqlite' => 'SQLITE_PATH',
-  }
+module ROM
+  module SQL
+    module RakeSupport
+      MissingEnv = Class.new(StandardError)
 
-  module_function
+      class << self
+        def run_migrations(options = {})
+          gateway.run_migrations(options)
+        end
 
-  def adapter
-    ENV['DB'] || 'sqlite'
+        def create_migration(*args)
+          gateway.migrator.create_file(*args)
+        end
+
+        # Global environment used for running migrations. You normally
+        # set in the `db:setup` task with `ROM::SQL::RakeSupport.env = ROM.container(...)`
+        # or something similar.
+        #
+        # @api public
+        attr_accessor :env
+
+        private
+
+        def gateway
+          if env.nil? # rubocop:disable Style/GuardClause
+            Gateway.instance ||
+              raise(MissingEnv, 'Set up a configutation with ROM::SQL::RakeSupport.env= in the db:setup task')
+          else
+            env.gateways[:default]
+          end
+        end
+      end
+
+      @env = nil
+    end
+  end
+end
+
+class DatabaseHelper
+  def setup!
+    ROM::SQL::RakeSupport.env = ROM::Configuration.new(
+      :sql,
+      'sqlite://test.db',
+      adapter: :sqlite,
+      path: '12'
+    ).tap do |config|
+      config.gateways[:default].migrator.instance_variable_set(:@path, 'spec/support/db/migrate')
+    end
   end
 
-  def postgres?
-    adapter == 'postgres'
-  end
-
-  def db_url(desired_adapter = nil)
-    env_name = MAPPING.fetch(desired_adapter || adapter)
-    ENV[env_name]
+  def migrate
+    setup!
+    ROM::SQL::RakeSupport.run_migrations
   end
 end
