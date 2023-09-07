@@ -1,5 +1,4 @@
 require 'spec_helper'
-require_relative '../rom_setup/all'
 require 'fileutils'
 require 'json'
 
@@ -9,13 +8,13 @@ describe 'Shrine Rom 3 with plugins' do
   end
 
   let(:image) do
-    FileUtils.cp('spec/support/cat.jpg', 'spec/support/cat_copy.jpg')
-    ::File.open('spec/support/cat_copy.jpg')
+    FileUtils.cp('spec/support/images/cat.jpg', 'spec/support/images/cat_copy.jpg')
+    ::File.open('spec/support/images/cat_copy.jpg')
   end
 
   let(:image2) do
-    FileUtils.cp('spec/support/cat2.jpg', 'spec/support/cat2_copy.jpg')
-    ::File.open('spec/support/cat2_copy.jpg')
+    FileUtils.cp('spec/support/images/cat2.jpg', 'spec/support/images/cat2_copy.jpg')
+    ::File.open('spec/support/images/cat2_copy.jpg')
   end
 
   let(:model) do

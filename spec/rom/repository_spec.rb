@@ -1,5 +1,4 @@
 require 'spec_helper'
-require_relative '../rom_setup/all'
 require 'fileutils'
 require 'json'
 
@@ -8,14 +7,13 @@ describe 'Hanami::Shrine::Repository' do
     FileUtils.rm_rf('spec/tmp/uploads')
   end
 
-  let(:image) { ::File.open('spec/support/cat.jpg') }
-  let(:image2) { ::File.open('spec/support/cat2.jpg') }
+  let(:image) { ::File.open('spec/support/images/cat.jpg') }
+  let(:image2) { ::File.open('spec/support/images/cat2.jpg') }
 
   let(:kitten_repository) { Repositories::KittenRepository.new }
   let(:multi_cat_repository) { Repositories::MultiCatRepository.new }
 
-  let(:kitten_entity) { kitten_repository.entity_class }
-  let(:multi_cat_entity) { multi_cat_repository.entity_class }
+  let(:kitten_entity) { kitten_repository.root.select(:image).mapper.model }
 
   let(:cat) do
     cat = kitten_entity.new(image: image)
@@ -39,7 +37,7 @@ describe 'Hanami::Shrine::Repository' do
 
     context 'with mutliple attachments' do
       it 'saves one of them' do
-        cat = multi_cat_entity.new(cat1: image)
+        cat = multi_cat_repository.root.select(:cat1).mapper.model.new(cat1: image)
         cat = multi_cat_repository.create(cat)
         expect(cat.cat1).not_to be_nil
         expect(cat.cat2).to be_nil
@@ -48,7 +46,7 @@ describe 'Hanami::Shrine::Repository' do
       end
 
       it 'saves both' do
-        cat = multi_cat_entity.new(cat1: image, cat2: image2)
+        cat = multi_cat_repository.root.select(:cat1, :cat2).mapper.model.new(cat1: image, cat2: image2)
         cat = multi_cat_repository.create(cat)
         expect(cat.cat2).not_to be_nil
         expect(cat.cat1).not_to be_nil
@@ -64,7 +62,7 @@ describe 'Hanami::Shrine::Repository' do
     let!(:before_update_data) { JSON.parse(cat.image_data) }
     let(:new_data) { JSON.parse(updated_cat.image_data) }
     let(:updated_cat) do
-      new_cat = kitten_entity.new(image: File.open('spec/support/cat2.jpg'))
+      new_cat = kitten_entity.new(image: File.open('spec/support/images/cat2.jpg'))
       kitten_repository.update(cat.id, new_cat)
     end
 
