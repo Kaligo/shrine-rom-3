@@ -1,3 +1,4 @@
 pkg/
 demo/.env
 .DS_Store
+*.db
