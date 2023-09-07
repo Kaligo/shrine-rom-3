@@ -1,3 +1,4 @@
+require 'rom-repository'
 require_relative 'shrine_attachments'
 
 module Entities

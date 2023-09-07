@@ -1,3 +1,4 @@
+require 'shrine'
 require 'image_processing/mini_magick'
 
 class ImageAttachment < Shrine

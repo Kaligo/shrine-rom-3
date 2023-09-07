@@ -115,17 +115,16 @@ module Repositories
     end
   end
 
-  class KittenRepository < BaseRepository
-    self.relation = :kittens
-    prepend ImageAttachment.repository(:image)
+  class KittenRepository < BaseRepository[:kittens]
+    # prepend ImageAttachment.repository(:image)
   end
   
-  class MultiCatRepository < BaseRepository
-    prepend ImageAttachment.repository(:cat1)
-    prepend ImageAttachment.repository(:cat2)
+  class MultiCatRepository < BaseRepository[:multi_cats]
+    # prepend ImageAttachment.repository(:cat1)
+    # prepend ImageAttachment.repository(:cat2)
   end
   
-  class PluginsModelRepository < BaseRepository
-    prepend ComplexAttachment.repository(:image)
+  class PluginsModelRepository < BaseRepository[:plugins_models]
+    # prepend ComplexAttachment.repository(:image)
   end
 end

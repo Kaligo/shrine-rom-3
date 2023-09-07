@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'pry'
 require 'sequel'
 require 'rom'
 require 'rom/sql'
@@ -13,13 +14,14 @@ module Model
     @configuration ||= ROM::Configuration.new(:sql, 'sqlite://test.db', **options).tap do |config|
       persistence_pathname = Pathname.new(__dir__).join('persistence')
 
+      binding.pry
       config.auto_registration(persistence_pathname, namespace: 'Persistence')
     end
   end
 
   def self.options
     {
-      adapter: 'sqlite'
+      adapter: 'sqlite',
       infer_relations: false
     }
   end
