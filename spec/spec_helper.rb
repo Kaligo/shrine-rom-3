@@ -21,8 +21,6 @@ require 'support/persistence/all'
 
 DatabaseHelper.new.migrate
 
-binding.pry
-
 RSpec.configure do |config|
   config.after(:each) do |_example|
     Repositories::KittenRepository.new.clear
