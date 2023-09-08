@@ -55,6 +55,15 @@ class Shrine
 
         private
 
+        def data
+          case @file
+          when Hash
+            @file.each_with_object({}) { |(k, v), hash| hash[k] = v.data }
+          else
+            @file&.data
+          end
+        end
+
         # Converts the column data hash into a string (generates JSON by
         # default).
         #
