@@ -10,15 +10,15 @@ module Entities
   end
 
   class Kitten < BaseEntity
-    include ImageAttachment[:image]
+    include ImageAttachment::Attachment.new(:image)
   end
 
   class MultiCat < BaseEntity
-    include ImageAttachment[:cat1]
-    include ImageAttachment[:cat2]
+    include ImageAttachment::Attachment.new(:cat1)
+    include ImageAttachment::Attachment.new(:cat2)
   end
 
   class PluginsModel < BaseEntity
-    include ComplexAttachment[:image]
+    include ComplexAttachment::Attachment.new(:image)
   end
 end

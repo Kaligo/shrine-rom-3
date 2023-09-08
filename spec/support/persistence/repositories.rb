@@ -16,7 +16,7 @@ module Repositories
     end
 
     def find(id)
-      root.by_pk(*sanitize_id(id)).one
+      root.by_pk(id).one
     end
 
     def where(args = {})
