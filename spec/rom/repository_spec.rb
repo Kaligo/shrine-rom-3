@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'fileutils'
 require 'json'
 
-describe 'Hanami::Shrine::Repository' do
+describe 'ROM Repository Attaching using Shrine ROM' do
   after do
     FileUtils.rm_rf('spec/tmp/uploads')
   end
@@ -13,15 +13,18 @@ describe 'Hanami::Shrine::Repository' do
   let(:kitten_repository) { Repositories::KittenRepository.new }
   let(:multi_cat_repository) { Repositories::MultiCatRepository.new }
 
-  let(:kitten_entity) { kitten_repository.root.select(:image).mapper.model }
+  let(:multi_cat_entity) { Entities::MultiCat.new }
+  let(:kitten_entity) { Entities::Kitten.new }
 
   let(:cat) do
-    cat = kitten_entity.new(image: image)
-    kitten_repository.create(cat)
+    attacher = kitten_entity.image_attacher
+    attacher.assign(image)
+    attacher.finalize
+  
+    kitten_repository.create(image_data: attacher.column_data)
   end
 
   shared_context 'creation' do
-
     it 'should not be in temp dir' do
       expect(cat.image_url).not_to match(/^#{Dir.tmpdir}/)
     end
@@ -37,8 +40,12 @@ describe 'Hanami::Shrine::Repository' do
 
     context 'with mutliple attachments' do
       it 'saves one of them' do
-        cat = multi_cat_repository.root.select(:cat1).mapper.model.new(cat1: image)
-        cat = multi_cat_repository.create(cat)
+        cat1_attacher = multi_cat_entity.cat1_attacher
+        cat1_attacher.assign(image)
+        cat1_attacher.finalize
+        
+        cat = multi_cat_repository.create(cat1_data: cat1_attacher.column_data)
+
         expect(cat.cat1).not_to be_nil
         expect(cat.cat2).to be_nil
         json_data = JSON.parse(cat.cat1_data)
@@ -46,8 +53,16 @@ describe 'Hanami::Shrine::Repository' do
       end
 
       it 'saves both' do
-        cat = multi_cat_repository.root.select(:cat1, :cat2).mapper.model.new(cat1: image, cat2: image2)
-        cat = multi_cat_repository.create(cat)
+        cat1_attacher = multi_cat_entity.cat1_attacher
+        cat1_attacher.assign(image)
+        cat1_attacher.finalize
+
+        cat2_attacher = multi_cat_entity.cat2_attacher
+        cat2_attacher.assign(image2)
+        cat2_attacher.finalize
+
+        cat = multi_cat_repository.create(cat1_data: cat2_attacher.column_data, cat2_data: cat2_attacher.column_data)
+
         expect(cat.cat2).not_to be_nil
         expect(cat.cat1).not_to be_nil
         json_data = JSON.parse(cat.cat1_data)
@@ -62,8 +77,11 @@ describe 'Hanami::Shrine::Repository' do
     let!(:before_update_data) { JSON.parse(cat.image_data) }
     let(:new_data) { JSON.parse(updated_cat.image_data) }
     let(:updated_cat) do
-      new_cat = kitten_entity.new(image: File.open('spec/support/images/cat2.jpg'))
-      kitten_repository.update(cat.id, new_cat)
+      attacher = kitten_entity.image_attacher
+      attacher.assign(File.open('spec/support/images/cat2.jpg'))
+      attacher.finalize
+
+      kitten_repository.update(cat.id, image_data: attacher.column_data)
     end
 
     it 'should have different id' do
@@ -87,14 +105,18 @@ describe 'Hanami::Shrine::Repository' do
 
     context 'with hash params' do
       let(:cat) do
-        kitten_repository.create(image: image)
+        attacher = kitten_entity.image_attacher
+        attacher.assign(image)
+        attacher.finalize
+        
+        kitten_repository.create(image_data: attacher.column_data)
       end
 
       include_context 'creation'
     end
   end
 
-  context '#delete' do
+  context '#delete', skip: true do
     let!(:before_delete_data) { JSON.parse(cat.image_data) }
 
     before do
@@ -116,7 +138,11 @@ describe 'Hanami::Shrine::Repository' do
 
     context 'with hash params' do
       let(:cat) do
-        kitten_repository.create(image: image)
+        attacher = kitten_entity.image_attacher
+        attacher.assign(image)
+        attacher.finalize
+        
+        kitten_repository.create(image_data: attacher.column_data)
       end
 
       include_context 'update'

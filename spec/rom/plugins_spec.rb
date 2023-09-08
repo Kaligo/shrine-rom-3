@@ -19,8 +19,12 @@ describe 'Shrine Rom 3 with plugins' do
 
   let(:model) do
     plugin_model_repo = Repositories::PluginsModelRepository.new
-    model = plugin_model_repo.entity_class.new(image: image)
-    plugin_model_repo.create(model)
+    attacher = Entities::PluginsModel.new.image_attacher
+
+    attacher.assign(image)
+    attacher.finalize
+
+    plugin_model_repo.create(image_data: attacher.column_data)
   end
 
   context 'versions + processing' do
