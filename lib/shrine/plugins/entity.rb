@@ -55,6 +55,14 @@ class Shrine
           define_method :"#{name}_attacher" do |**options|
             attachment.send(:attacher, self, name, **options)
           end
+
+          define_method :"#{name}_data=" do |data|
+            instance_variable_set("@#{name}_data", data)
+          end
+
+          define_method :"#{name}_data" do
+            defined?(super) ? super() : instance_variable_get("@#{name}_data")
+          end
         end
 
         # Returns the class attacher instance with loaded entity. It's not
